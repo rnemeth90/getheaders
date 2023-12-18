@@ -8,24 +8,46 @@ import (
 
 	"github.com/rnemeth90/getheaders"
 	"github.com/spf13/pflag"
+	"gopkg.in/yaml.v2"
 )
 
 var (
-	url string
+	url     string
+	jsonOut bool
+	yamlOut bool
 )
 
 type config struct {
-	u string
+	url string
 }
 
 func init() {
-	pflag.StringVar(&url, "url", "", "The URL to query [required]")
+	pflag.StringVarP(&url, "url", "u", "", "The URL to query [required]")
+	pflag.BoolVarP(&jsonOut, "json", "j", false, "Output in JSON format")
+	pflag.BoolVarP(&yamlOut, "yaml", "y", false, "Output in YAML format")
+}
+
+// usage displays the usage information for the program
+func usage() {
+	fmt.Println("Usage of getheaders:")
+	fmt.Println("  -u, --url string")
+	fmt.Println("        The URL to query [required]")
+	fmt.Println("  -j, --json")
+	fmt.Println("        Output in JSON format")
+	fmt.Println("  -y, --yaml")
+	fmt.Println("        Output in YAML format")
 }
 
 func main() {
 	pflag.Parse()
+
+	if url == "" {
+		usage()
+		os.Exit(1)
+	}
+
 	c := config{
-		u: url,
+		url: url,
 	}
 
 	if err := run(c); err != nil {
@@ -35,16 +57,28 @@ func main() {
 }
 
 func run(c config) error {
-	result, err := getheaders.DoRequest(http.MethodGet, c.u)
+	result, err := getheaders.DoRequest(http.MethodGet, c.url)
 	if err != nil {
 		return err
 	}
 
-	jsonData, err := json.Marshal(result)
-	if err != nil {
-		return err
+	switch {
+	case yamlOut:
+		yamlData, err := yaml.Marshal(result)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(yamlData))
+	case jsonOut:
+		fallthrough
+	default:
+		jsonData, err := json.Marshal(result)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(jsonData))
+
 	}
 
-	fmt.Println(string(jsonData))
 	return nil
 }
