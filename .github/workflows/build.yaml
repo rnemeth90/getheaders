@@ -46,8 +46,14 @@ jobs:
         fi
         go mod tidy
         go build -o getheaders -ldflags "-X main.Version=${GITHUB_REF_NAME} -X main.BuiltBy=github-actions" main.go
-        mv getheaders builds/
-        ls -lisa builds/
+
+        if [ ! -d "/tmp/builds" ]; then
+          mkdir -p "/tmp/builds"
+        fi
+
+        ls -lisa /tmp/builds/
+        mv getheaders /tmp/builds/
+        ls -lisa /tmp/builds/
 
     - run: git version
     - run: git branch
@@ -85,7 +91,7 @@ jobs:
       with:
         name: ${{ env.GITHUB_REF_NAME }}
         tag: ${{ env.GITHUB_REF_NAME }}
-        artifacts: getheaders
+        artifacts: /tmp/builds/getheaders
         bodyFile: "body.log"
         token: ${{ secrets.GITHUB_TOKEN }}
         removeArtifacts: true

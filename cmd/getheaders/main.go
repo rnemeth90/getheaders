@@ -41,9 +41,15 @@ func usage() {
 func main() {
 	pflag.Parse()
 
-	if url == "" {
+	nonPflagArgs := pflag.Args()
+
+	if url == "" && len(nonPflagArgs) == 0 {
 		usage()
 		os.Exit(1)
+	}
+
+	if len(nonPflagArgs) == 1 {
+		url = nonPflagArgs[0]
 	}
 
 	c := config{
