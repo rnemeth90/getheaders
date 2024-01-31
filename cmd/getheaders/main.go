@@ -13,6 +13,7 @@ import (
 
 var (
 	url     string
+	help    bool
 	jsonOut bool
 	yamlOut bool
 )
@@ -23,19 +24,21 @@ type config struct {
 
 func init() {
 	pflag.StringVarP(&url, "url", "u", "", "The URL to query [required]")
+	pflag.BoolVarP(&help, "help", "h", false, "Help")
 	pflag.BoolVarP(&jsonOut, "json", "j", false, "Output in JSON format")
 	pflag.BoolVarP(&yamlOut, "yaml", "y", false, "Output in YAML format")
+	pflag.Usage = usage
+	pflag.ErrHelp = nil
 }
 
-// usage displays the usage information for the program
 func usage() {
-	fmt.Println("Usage of getheaders:")
-	fmt.Println("  -u, --url string")
-	fmt.Println("        The URL to query [required]")
-	fmt.Println("  -j, --json")
-	fmt.Println("        Output in JSON format")
-	fmt.Println("  -y, --yaml")
-	fmt.Println("        Output in YAML format")
+	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+	fmt.Fprintln(os.Stderr, "This program shows HTTP headers from a given URL")
+	fmt.Fprintln(os.Stderr, "Flags:")
+	pflag.PrintDefaults()
+	fmt.Fprintln(os.Stderr, "\nExamples:")
+	fmt.Fprintf(os.Stderr, "  %s --url https://rnemeth90.github.io --yaml\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "  %s --url https://rnemeth90.github.io --json\n", os.Args[0])
 }
 
 func main() {
@@ -45,7 +48,7 @@ func main() {
 
 	if url == "" && len(nonPflagArgs) == 0 {
 		usage()
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	if len(nonPflagArgs) == 1 {
@@ -83,7 +86,6 @@ func run(c config) error {
 			return err
 		}
 		fmt.Println(string(jsonData))
-
 	}
 
 	return nil

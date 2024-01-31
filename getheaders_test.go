@@ -1,7 +1,6 @@
 package getheaders
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -19,7 +18,7 @@ func TestDoRequest(t *testing.T) {
 
 	result, err := DoRequest(http.MethodGet, server.URL)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
+		t.Fatal("Failed to get headers from DoRequest()")
 		os.Exit(1)
 	}
 
