@@ -17,7 +17,6 @@ jobs:
       contents: write
 
     steps:
-
     # debug
     - name: Dump env
       run: env | sort
@@ -39,7 +38,7 @@ jobs:
         go-version: '^1.19.2'
     - run: |
         go version
-        cd ./cmd/getheaders/
+        cd ./cmd/cli/
         ls -lisa
         if [ ! -e *.mod ]; then
           go mod init ${GITHUB_REPOSITORY}
@@ -51,7 +50,6 @@ jobs:
           mkdir -p "/tmp/builds"
         fi
 
-        ls -lisa /tmp/builds/
         mv getheaders /tmp/builds/
         ls -lisa /tmp/builds/
 

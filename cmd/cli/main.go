@@ -16,6 +16,7 @@ var (
 	help    bool
 	jsonOut bool
 	yamlOut bool
+	pretty  bool
 )
 
 type config struct {
@@ -27,6 +28,7 @@ func init() {
 	pflag.BoolVarP(&help, "help", "h", false, "Help")
 	pflag.BoolVarP(&jsonOut, "json", "j", false, "Output in JSON format")
 	pflag.BoolVarP(&yamlOut, "yaml", "y", false, "Output in YAML format")
+	pflag.BoolVarP(&pretty, "pretty", "p", false, "Pretty print json")
 	pflag.Usage = usage
 	pflag.ErrHelp = nil
 }
@@ -77,14 +79,25 @@ func run(c config) error {
 		if err != nil {
 			return err
 		}
+
 		fmt.Println(string(yamlData))
+
 	case jsonOut:
 		fallthrough
+
 	default:
 		jsonData, err := json.Marshal(result)
 		if err != nil {
 			return err
 		}
+
+		if pretty {
+			jsonData, err = json.MarshalIndent(result, "", "  ")
+			if err != nil {
+				return err
+			}
+		}
+
 		fmt.Println(string(jsonData))
 	}
 
